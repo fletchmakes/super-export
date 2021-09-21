@@ -1,3 +1,6 @@
+# Other ignorables
+**.aseprite
+
 # Compiled Lua sources
 luac.out
 
