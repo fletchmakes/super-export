@@ -96,38 +96,82 @@ end
 --------------------------
 -- declare Dialog object
 --------------------------
-dialog = Dialog("Super Export")
+local function mainWindow()
+    local dialog = Dialog("Super Export")
 
-dialog:number {
-    id="percentage",
-    label="Resize Percentage: ",
-    decimals=0
-}
+    local sprite = app.activeSprite
+    local s_width = sprite.width
+    local s_height = sprite.height
 
-dialog:button {
-    id="cancel",
-    text="Cancel",
-    onclick=function()
-        dialog:close()
-    end
-}
+    dialog:number {
+        id="percentage",
+        label="Resize Percentage: ",
+        text=tostring(100),
+        decimals=0,
+        onchange=function()
+            -- update the projected pixel ratios
+            local newwidth = math.floor(s_width * (dialog.data.percentage / 100))
+            local newheight = math.floor(s_height * (dialog.data.percentage / 100))
 
-dialog:button {
-    id="confirm",
-    text="Confirm",
-    onclick=function()
-        local props = dialog.data
-        -- check to see if the percentage is valid
-        if (props.percentage < 100) then
-            create_error("The percentage must be >= 100%", dialog, 0)
-            return
+            dialog:modify {
+                id="ratio_width",
+                text=tostring(newwidth).."px"
+            }
+
+            dialog:modify {
+                id="ratio_height",
+                text=tostring(newheight).."px"
+            }
         end
+    }
 
-        -- show the dialog to the user
-        dialog:close()
-        processExport(props)
-    end
-}
+    dialog:separator {
+        id="ratio_display"
+    }
+
+    dialog:label {
+        id="ratio_width",
+        label="New Width:",
+        text=tostring(s_width).."px"
+    }
+
+    dialog:label {
+        id="ratio_height",
+        label="New Height:",
+        text=tostring(s_height).."px"
+    }
+
+    dialog:separator {
+        id="footer"
+    }
+
+    dialog:button {
+        id="cancel",
+        text="Cancel",
+        onclick=function()
+            dialog:close()
+        end
+    }
+
+    dialog:button {
+        id="confirm",
+        text="Confirm",
+        onclick=function()
+            local props = dialog.data
+            -- check to see if the percentage is valid
+            if (props.percentage < 100) then
+                create_error("The percentage must be >= 100%", dialog, 0)
+                return
+            end
+
+            -- show the dialog to the user
+            dialog:close()
+            processExport(props)
+        end
+    }
+
+    return dialog
+end
 
 -- display the dialog to the user
-dialog:show{ wait=true }
+mainWindow():show{ wait=true }

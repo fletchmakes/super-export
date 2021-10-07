@@ -11,7 +11,7 @@ An Aseprite extension that allows you to export your sprites at sizes greater th
 4. Complete the dialogs
 5. Enjoy your newly resized sprite!
 
-![demonstration](https://media.giphy.com/media/mcCsPrN89IL7xl79f4/source.gif?cid=790b7611efad099bb32f1e66e9a7bebf204daac872022a4e&rid=source.gif&ct=g)
+![demonstration](https://media.giphy.com/media/vyCwOFAnUjjmBNhOfI/giphy.gif)
 
 ## Credits
 
