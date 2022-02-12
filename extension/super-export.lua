@@ -34,6 +34,10 @@ local function calculate_export_size(original_width, original_height, resize_per
     }
 end
 
+local function selection_only_checkbox_text(selection_width, selection_height)
+    return "(" .. tostring(selection_width) .. "px x " .. tostring(selection_height) .. "px)"
+end
+
 local function label_ratio_width_text(width)
     return tostring(math.floor(width)) .. "px"
 end
@@ -91,7 +95,12 @@ local function processExport(props)
 
     if (confirm) then
         -- start a new transaction
-        app.transaction(function () 
+        app.transaction(function ()
+            -- crop sprite to selection, if chosen to do so
+            if (props.selection_only) then
+                sprite:crop()
+            end
+            
             -- calculate the new values
             local export_size = calculate_export_size(sprite.width, sprite.height, props.percentage)
         
@@ -116,6 +125,8 @@ local function mainWindow()
     local sprite = app.activeSprite
     local sprite_width = sprite.width
     local sprite_height = sprite.height
+    local selection_width = sprite.selection.bounds.width
+    local selection_height = sprite.selection.bounds.height
 
     dialog:number {
         id="percentage",
@@ -125,12 +136,40 @@ local function mainWindow()
         onchange=function()
             -- update the projected pixel ratios
             local new_export_size = calculate_export_size(sprite_width, sprite_height, dialog.data.percentage)
+            if (dialog.data.selection_only) then
+                new_export_size = calculate_export_size(selection_width, selection_height, dialog.data.percentage)
+            end
             
             dialog:modify {
                 id="ratio_width",
                 text=label_ratio_width_text(new_export_size.width)
             }
             
+            dialog:modify {
+                id="ratio_height",
+                text=label_ratio_height_text(new_export_size.height)
+            }
+        end
+    }
+
+    dialog:check {
+        id = "selection_only",
+        label = "Crop to selection:",
+        text = selection_only_checkbox_text(selection_width, selection_height),
+        enabled = true,
+        selected = false,
+        onclick = function()
+            -- update the projected pixel ratios
+            local new_export_size = calculate_export_size(sprite_width, sprite_height, dialog.data.percentage)
+            if (dialog.data.selection_only) then
+                new_export_size = calculate_export_size(selection_width, selection_height, dialog.data.percentage)
+            end
+
+            dialog:modify {
+                id="ratio_width",
+                text=label_ratio_width_text(new_export_size.width)
+            }
+
             dialog:modify {
                 id="ratio_height",
                 text=label_ratio_height_text(new_export_size.height)
