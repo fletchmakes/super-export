@@ -29,8 +29,8 @@ end
 
 local function calculate_export_size(original_width, original_height, resize_percentage)
     return {
-        width = original_width * resize_percentage / 100,
-        height = original_height * resize_percentage / 100,
+        width = original_width * (resize_percentage / 100),
+        height = original_height * (resize_percentage / 100),
     }
 end
 
