@@ -34,7 +34,14 @@ local function calculate_export_size(original_width, original_height, resize_per
     }
 end
 
+local function is_selection_empty(selection_width, selection_height)
+    return selection_width <= 0 or selection_height <= 0
+end
+
 local function selection_only_checkbox_text(selection_width, selection_height)
+    if (is_selection_empty(selection_width, selection_height)) then
+        return "(no selection)"
+    end
     return "(" .. tostring(selection_width) .. "px x " .. tostring(selection_height) .. "px)"
 end
 
@@ -156,7 +163,7 @@ local function mainWindow()
         id = "selection_only",
         label = "Crop to selection:",
         text = selection_only_checkbox_text(selection_width, selection_height),
-        enabled = true,
+        enabled = not is_selection_empty(selection_width, selection_height),
         selected = false,
         onclick = function()
             -- update the projected pixel ratios
