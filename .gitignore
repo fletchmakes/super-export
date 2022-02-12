@@ -1,6 +1,7 @@
 # Other ignorables
 **.aseprite
 **.vscode
+/.idea/
 
 # Compiled Lua sources
 luac.out
