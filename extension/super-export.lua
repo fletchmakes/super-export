@@ -164,7 +164,7 @@ local function mainWindow()
         label = "Crop to selection:",
         text = selection_only_checkbox_text(selection_width, selection_height),
         enabled = not is_selection_empty(selection_width, selection_height),
-        selected = false,
+        selected = not is_selection_empty(selection_width, selection_height),
         onclick = function()
             -- update the projected pixel ratios
             local new_export_size = calculate_export_size(sprite_width, sprite_height, dialog.data.percentage)
