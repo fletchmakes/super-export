@@ -135,6 +135,11 @@ local function mainWindow()
     local selection_width = sprite.selection.bounds.width
     local selection_height = sprite.selection.bounds.height
 
+    local export_size = {
+        width = sprite.width,
+        height = sprite.height
+    }
+
     dialog:number {
         id="percentage",
         label="Resize Percentage: ",
@@ -142,19 +147,19 @@ local function mainWindow()
         decimals=0,
         onchange=function()
             -- update the projected pixel ratios
-            local new_export_size = calculate_export_size(sprite_width, sprite_height, dialog.data.percentage)
+            export_size = calculate_export_size(sprite_width, sprite_height, dialog.data.percentage)
             if (dialog.data.selection_only) then
-                new_export_size = calculate_export_size(selection_width, selection_height, dialog.data.percentage)
+                export_size = calculate_export_size(selection_width, selection_height, dialog.data.percentage)
             end
             
             dialog:modify {
                 id="ratio_width",
-                text=label_ratio_width_text(new_export_size.width)
+                text=label_ratio_width_text(export_size.width)
             }
             
             dialog:modify {
                 id="ratio_height",
-                text=label_ratio_height_text(new_export_size.height)
+                text=label_ratio_height_text(export_size.height)
             }
         end
     }
@@ -167,19 +172,19 @@ local function mainWindow()
         selected = not is_selection_empty(selection_width, selection_height),
         onclick = function()
             -- update the projected pixel ratios
-            local new_export_size = calculate_export_size(sprite_width, sprite_height, dialog.data.percentage)
+            export_size = calculate_export_size(sprite_width, sprite_height, dialog.data.percentage)
             if (dialog.data.selection_only) then
-                new_export_size = calculate_export_size(selection_width, selection_height, dialog.data.percentage)
+                export_size = calculate_export_size(selection_width, selection_height, dialog.data.percentage)
             end
 
             dialog:modify {
                 id="ratio_width",
-                text=label_ratio_width_text(new_export_size.width)
+                text=label_ratio_width_text(export_size.width)
             }
 
             dialog:modify {
                 id="ratio_height",
-                text=label_ratio_height_text(new_export_size.height)
+                text=label_ratio_height_text(export_size.height)
             }
         end
     }
@@ -188,16 +193,22 @@ local function mainWindow()
         id="ratio_display"
     }
 
+    -- recalculate based on percentage value
+    export_size = calculate_export_size(sprite_width, sprite_height, 100)
+    if (dialog.data.selection_only) then
+        export_size = calculate_export_size(selection_width, selection_height, 100)
+    end
+
     dialog:label {
         id="ratio_width",
         label="New Width:",
-        text=tostring(sprite_width).."px"
+        text=label_ratio_width_text(export_size.width)
     }
 
     dialog:label {
         id="ratio_height",
         label="New Height:",
-        text=tostring(sprite_height).."px"
+        text=label_ratio_height_text(export_size.height)
     }
 
     dialog:separator {
