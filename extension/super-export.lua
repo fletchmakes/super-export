@@ -27,6 +27,32 @@ local function create_error(str, dialog, exit)
     if (exit == 1) then dialog:close() end
 end
 
+local function calculate_export_size(original_width, original_height, resize_percentage)
+    return {
+        width = original_width * (resize_percentage / 100),
+        height = original_height * (resize_percentage / 100),
+    }
+end
+
+local function is_selection_empty(selection_width, selection_height)
+    return selection_width <= 0 or selection_height <= 0
+end
+
+local function selection_only_checkbox_text(selection_width, selection_height)
+    if (is_selection_empty(selection_width, selection_height)) then
+        return "(no selection)"
+    end
+    return "(" .. tostring(selection_width) .. "px x " .. tostring(selection_height) .. "px)"
+end
+
+local function label_ratio_width_text(width)
+    return tostring(math.floor(width)) .. "px"
+end
+
+local function label_ratio_height_text(height)
+    return tostring(math.floor(height)) .. "px"
+end
+
 -- create a confirmation dialog and wait for the user to confirm
 local function create_confirm(str)
     local confirm = Dialog("Confirm?")
@@ -76,13 +102,17 @@ local function processExport(props)
 
     if (confirm) then
         -- start a new transaction
-        app.transaction(function () 
+        app.transaction(function ()
+            -- crop sprite to selection, if chosen to do so
+            if (props.selection_only) then
+                sprite:crop()
+            end
+            
             -- calculate the new values
-            local newwidth = sprite.width * (props.percentage / 100)
-            local newheight = sprite.height * (props.percentage / 100)
+            local export_size = calculate_export_size(sprite.width, sprite.height, props.percentage)
         
             -- resize the sprite
-            sprite:resize(newwidth, newheight)
+            sprite:resize(export_size.width, export_size.height)
 
             -- save a copy of the sprite
             app.command.SaveFileCopyAs { ["useUI"]=true }
@@ -100,8 +130,10 @@ local function mainWindow()
     local dialog = Dialog("Super Export")
 
     local sprite = app.activeSprite
-    local s_width = sprite.width
-    local s_height = sprite.height
+    local sprite_width = sprite.width
+    local sprite_height = sprite.height
+    local selection_width = sprite.selection.bounds.width
+    local selection_height = sprite.selection.bounds.height
 
     dialog:number {
         id="percentage",
@@ -110,17 +142,44 @@ local function mainWindow()
         decimals=0,
         onchange=function()
             -- update the projected pixel ratios
-            local newwidth = math.floor(s_width * (dialog.data.percentage / 100))
-            local newheight = math.floor(s_height * (dialog.data.percentage / 100))
+            local new_export_size = calculate_export_size(sprite_width, sprite_height, dialog.data.percentage)
+            if (dialog.data.selection_only) then
+                new_export_size = calculate_export_size(selection_width, selection_height, dialog.data.percentage)
+            end
+            
+            dialog:modify {
+                id="ratio_width",
+                text=label_ratio_width_text(new_export_size.width)
+            }
+            
+            dialog:modify {
+                id="ratio_height",
+                text=label_ratio_height_text(new_export_size.height)
+            }
+        end
+    }
+
+    dialog:check {
+        id = "selection_only",
+        label = "Crop to selection:",
+        text = selection_only_checkbox_text(selection_width, selection_height),
+        enabled = not is_selection_empty(selection_width, selection_height),
+        selected = not is_selection_empty(selection_width, selection_height),
+        onclick = function()
+            -- update the projected pixel ratios
+            local new_export_size = calculate_export_size(sprite_width, sprite_height, dialog.data.percentage)
+            if (dialog.data.selection_only) then
+                new_export_size = calculate_export_size(selection_width, selection_height, dialog.data.percentage)
+            end
 
             dialog:modify {
                 id="ratio_width",
-                text=tostring(newwidth).."px"
+                text=label_ratio_width_text(new_export_size.width)
             }
 
             dialog:modify {
                 id="ratio_height",
-                text=tostring(newheight).."px"
+                text=label_ratio_height_text(new_export_size.height)
             }
         end
     }
@@ -132,13 +191,13 @@ local function mainWindow()
     dialog:label {
         id="ratio_width",
         label="New Width:",
-        text=tostring(s_width).."px"
+        text=tostring(sprite_width).."px"
     }
 
     dialog:label {
         id="ratio_height",
         label="New Height:",
-        text=tostring(s_height).."px"
+        text=tostring(sprite_height).."px"
     }
 
     dialog:separator {
