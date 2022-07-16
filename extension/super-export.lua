@@ -216,14 +216,6 @@ local function mainWindow()
     }
 
     dialog:button {
-        id="cancel",
-        text="Cancel",
-        onclick=function()
-            dialog:close()
-        end
-    }
-
-    dialog:button {
         id="confirm",
         text="Confirm",
         onclick=function()
@@ -237,6 +229,14 @@ local function mainWindow()
             -- show the dialog to the user
             dialog:close()
             processExport(props)
+        end
+    }
+
+    dialog:button {
+        id="cancel",
+        text="Cancel",
+        onclick=function()
+            dialog:close()
         end
     }
 
