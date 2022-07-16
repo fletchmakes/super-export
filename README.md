@@ -18,7 +18,8 @@ An Aseprite extension that allows you to export your sprites at sizes greater th
 
 This extension was commissioned by [@timesnewredux](https://twitter.com/timesnewredux) on Twitter.
 
-This extension was extended to include the "crop to selection" option by [@beetrootpaul](https://twitter.com/beetrootpaul) on Twitter.
+* This extension was extended to include the "crop to selection" option by [@beetrootpaul](https://twitter.com/beetrootpaul) on Twitter.
+* This extension was updated to swap the confirm / cancel buttons for better usability by [HereHaveTheseFlowers](https://github.com/herehavetheseflowers).
 
 As an advocate of open-source software, feel free to suggest edits, or just fork this repository and make your own! The license on this software is open for commercial and private use. This extension will remain free forever; however, if you'd like to buy me a coffee, you can do so here: 
 
