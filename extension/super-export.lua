@@ -21,6 +21,8 @@
 -- SOFTWARE.
 
 -- helper methods
+local preferences = ...
+
 -- create an error alert and exit the dialog
 local function create_error(str, dialog, exit)
     app.alert(str)
@@ -62,17 +64,26 @@ local function create_confirm(str)
         text=str
     }
 
-    confirm:button {
-        id="cancel",
-        text="Cancel",
-        onclick=function()
-            confirm:close()
+    confirm:check {
+        id = "never_show_again",
+        text = "Never tell me this again",
+        selected = preferences.hideConfirm,
+        onclick = function()
+            preferences.hideConfirm = not preferences.hideConfirm
         end
     }
 
     confirm:button {
         id="confirm",
         text="Confirm",
+        onclick=function()
+            confirm:close()
+        end
+    }
+
+    confirm:button {
+        id="cancel",
+        text="Cancel",
         onclick=function()
             confirm:close()
         end
@@ -98,7 +109,10 @@ local function processExport(props)
     local sprite = app.activeSprite
 
     -- give a warning to the user
-    local confirm = create_confirm("On the following window, set the percentage at 100%.")
+    local confirm = true
+    if (not preferences.hideConfirm) then
+        confirm = create_confirm("On the following window, set the percentage at 100%.")
+    end
 
     if (confirm) then
         -- start a new transaction

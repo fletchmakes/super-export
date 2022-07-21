@@ -22,6 +22,12 @@
 
 function init(plugin)
     print("Aseprite is initializing Super Export")
+
+    if plugin.preferences == nil then
+        plugin.preferences = {
+            hideConfirm = false
+        }
+    end
   
     plugin:newCommand {
         id="Super Export",
@@ -29,7 +35,7 @@ function init(plugin)
         group="file_save",
         onclick=function()
             local executable = app.fs.joinPath(app.fs.userConfigPath, "extensions", "super-export", "super-export.lua")
-            dofile(executable)
+            loadfile(executable)(plugin.preferences)
         end
     }
 end
